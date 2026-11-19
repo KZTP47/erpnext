@@ -57,7 +57,12 @@ jobs:
       - name: ERPNext test case
         if: ${{ !cancelled() && steps.api.outcome == 'success' }}
         run: |
-          docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T -e CI=true backend bench --site frontend run-tests --doctype 'Sales Order' --test test_rejects_an_order_without_items
+          compose=(docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml)
+          "${compose[@]}" exec -T backend bench new-site \
+            --mariadb-user-host-login-scope='%' --admin-password=admin \
+            --db-root-username=root --db-root-password=admin --install-app erpnext erpnext-tests.local
+          "${compose[@]}" exec -T -e CI=true backend bench --site erpnext-tests.local run-tests \
+            --doctype 'Sales Order' --test test_rejects_an_order_without_items
       - name: Upload browser diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
