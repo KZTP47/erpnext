@@ -1,0 +1,11 @@
+# Applied after the pinned upstream disposable stack.
+services:
+  backend:
+    volumes:
+      - type: bind
+        source: .
+        target: /qa
+        read_only: true
+  frontend:
+    ports: !override
+      - "127.0.0.1:${ERP_QA_PORT:-18080}:8080"

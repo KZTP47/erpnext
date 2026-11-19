@@ -1,0 +1,17 @@
+{
+  "name": "erpnext-qa-work-sample",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:domain": "node scripts/stack.mjs domain",
+    "test:api": "playwright test --project=api",
+    "test:e2e": "playwright test --project=e2e",
+    "stack:up": "node scripts/stack.mjs up",
+    "stack:down": "node scripts/stack.mjs down",
+    "stack:logs": "node scripts/stack.mjs logs"
+  },
+  "devDependencies": { "@playwright/test": "1.65.1" }
+}

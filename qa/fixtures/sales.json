@@ -1,0 +1,30 @@
+{
+  "company": {
+    "name": "QA Synthetic Aster Relay Cooperative",
+    "abbreviation": "QARC",
+    "country": "United States",
+    "currency": "USD",
+    "timezone": "UTC"
+  },
+  "customer": {
+    "name": "QA Synthetic Juniper Stageworks",
+    "type": "Company",
+    "group": "Commercial"
+  },
+  "items": [
+    { "code": "QA-SYN-LUMEN-CAL", "label": "Synthetic lumen calibration", "rateCents": 12475 },
+    { "code": "QA-SYN-RELAY-MAP", "label": "Synthetic relay mapping", "rateCents": 3680 }
+  ],
+  "orders": {
+    "single": { "lines": [{ "sku": 0, "qty": 2 }], "totalCents": 24950 },
+    "mixed": { "lines": [{ "sku": 0, "qty": 2 }, { "sku": 1, "qty": 3 }], "totalCents": 35990 },
+    "changed": { "lines": [{ "sku": 0, "qty": 4 }], "totalCents": 49900 },
+    "oneRelay": { "lines": [{ "sku": 1, "qty": 1 }], "totalCents": 3680 },
+    "threeRelays": { "lines": [{ "sku": 1, "qty": 3 }], "totalCents": 11040 }
+  },
+  "negative": {
+    "zeroQuantity": 0,
+    "missingItemCode": "QA-SYN-NONEXISTENT-47",
+    "deliveryOffset": -1
+  }
+}

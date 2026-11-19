@@ -1,0 +1,55 @@
+name: ERPNext QA work sample
+
+on:
+  push:
+    branches: [qa/erpnext-sales-automation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: erpnext-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: qa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: qa/package-lock.json
+      - run: npm ci
+      - name: Fixture and harness unit tests
+        run: npm run test:unit
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Prepare disposable ERPNext site
+        id: stack
+        run: npm run stack:up
+      - name: ERPNext domain unit tests
+        run: npm run test:domain
+      - name: REST contracts
+        run: npm run test:api
+      - name: Desk workflows
+        if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
+        run: npm run test:e2e
+      - name: Logs on failure
+        if: failure()
+        run: npm run stack:logs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-failure-screenshots
+          path: qa/test-results/**/*.png
+          if-no-files-found: ignore
+      - name: Remove this run's site and volumes
+        if: always()
+        run: npm run stack:down
