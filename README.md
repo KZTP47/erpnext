@@ -26,11 +26,16 @@
 	<a href="https://docs.frappe.io/erpnext/">Documentation</a>
 </div>
 
+## Sales order QA work sample
+
+This suite exercises ERPNext sales orders with unit tests, REST API tests and Playwright browser tests. The API and browser tests use the same synthetic catalog.
+
+- [Setup and troubleshooting guide](qa/README.md) explains how to start the test site, run each layer and inspect failures.
+- [Test cases and synthetic data](qa/TEST_CASES.md) lists the golden and negative paths, their expected results and the known ERPNext validation issue.
+
 ## ERPNext
 
 100% Open-Source ERP system to help you run your business.
-
-[QA work sample for Sales Orders](qa/README.md) covers ERPNext's delivery rules, the REST API and the Desk workflow with synthetic data. The linked guide and test cases are in Swedish.
 
 ### Motivation
 
