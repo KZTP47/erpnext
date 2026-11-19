@@ -45,6 +45,13 @@ from erpnext.tests.utils import ERPNextTestSuite
 
 
 class TestSalesOrder(ERPNextTestSuite):
+	def test_rejects_an_order_without_items(self):
+		order = make_sales_order(do_not_save=True)
+		order.set("items", [])
+
+		with self.assertRaisesRegex(frappe.MandatoryError, "Please add at least one item"):
+			order.insert()
+
 	@ERPNextTestSuite.change_settings(
 		"Stock Settings",
 		{
