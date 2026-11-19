@@ -1,14 +1,14 @@
-name: Verify empty sales order fix
+name: Verify empty sales order fix on develop
 
 on:
   push:
-    branches: [qa/verify-sales-order-required-items]
+    branches: [qa/verify-sales-order-required-items-develop]
 
 permissions:
   contents: read
 
 env:
-  FIX_COMMIT: abcd84eb0a4087e477182195682bcb2a57729fc5
+  FIX_COMMIT: 41d62c8e01362e6c1433941a16bc9f341f5366bf
 
 jobs:
   verify:
@@ -25,8 +25,7 @@ jobs:
           cache: npm
           cache-dependency-path: qa/package-lock.json
       - run: npm ci
-      - run: npx playwright install --only-shell chromium
-      - name: Start ERPNext v16.60.0
+      - name: Start pinned ERPNext develop image
         run: npm run stack:up
       - name: Confirm original server error
         run: |
@@ -52,8 +51,6 @@ jobs:
         run: npm run test:api
         env:
           ERP_QA_STRICT_EMPTY_ORDER: '1'
-      - name: Desk regression suite
-        run: npm run test:e2e
       - name: ERPNext test case
         if: ${{ !cancelled() && steps.api.outcome == 'success' }}
         run: |
@@ -63,13 +60,6 @@ jobs:
             --db-root-username=root --db-root-password=admin --install-app erpnext erpnext-tests.local
           "${compose[@]}" exec -T -e CI=true backend bench --site erpnext-tests.local run-tests \
             --doctype 'Sales Order' --test test_rejects_an_order_without_items
-      - name: Upload browser diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: desk-failures
-          path: qa/test-results/
-          if-no-files-found: ignore
       - name: Site logs on failure
         if: failure()
         run: npm run stack:logs

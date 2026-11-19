@@ -1,5 +1,5 @@
 # Applied after the pinned upstream disposable stack.
-x-erpnext-image: &erpnext-image frappe/erpnext:v16.60.0@sha256:0018b773d70c8d50581484cfb5360bc40b535b0b8d9acbb72162dda401d17b43
+x-erpnext-image: &erpnext-image frappe/erpnext:develop@sha256:8309e4682b17f0b83a68d3a0583d3896129e5b8ba27f8e70d9537ad07fd664de
 services:
   backend:
     image: *erpnext-image
