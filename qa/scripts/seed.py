@@ -1,6 +1,7 @@
 """Configure the fresh `frontend` site created by the pinned Compose stack."""
 
 import json
+import os
 from pathlib import Path
 from secrets import token_hex
 
@@ -99,7 +100,9 @@ def prepare_operator():
 def main():
     if erpnext.__version__ != '16.60.0':
         raise RuntimeError(f'Expected ERPNext 16.60.0, found {erpnext.__version__}')
-    frappe.init(site='frontend', sites_path=f'{BENCH}/sites')
+    # Match Bench's working directory so Frappe resolves ../logs correctly.
+    os.chdir(f'{BENCH}/sites')
+    frappe.init(site='frontend')
     frappe.connect()
     try:
         frappe.set_user('Administrator')
