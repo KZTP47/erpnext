@@ -32,7 +32,7 @@ export class SalesOrderPage {
 
   async selectLink(control, value, optionText) {
     await control.fill(value);
-    await this.page.locator('.awesomplete li:visible').filter({ hasText: optionText }).first().click();
+    await this.page.getByRole('option').filter({ hasText: optionText }).click();
   }
 
   async changeField(field, value) {
@@ -44,6 +44,13 @@ export class SalesOrderPage {
   async selectCustomer() {
     await this.selectLink(this.page.locator(input('customer')), this.site.customer, this.site.customer);
     await expect(this.page.locator(input('customer'))).toHaveValue(this.site.customer);
+  }
+
+  async setDeliveryDate(isoDate) {
+    const displayedDate = await this.page.evaluate(
+      value => globalThis.frappe.datetime.str_to_user(value, false, true), isoDate,
+    );
+    await this.changeField('delivery_date', displayedDate);
   }
 
   async setReference(reference) {
@@ -60,7 +67,7 @@ export class SalesOrderPage {
     }
     await expect(this.rows).toHaveCount(1);
     const row = this.rows.first();
-    await row.locator('.data-row [data-fieldname="item_code"]').click();
+    await row.locator('.data-row > .grid-static-col[data-fieldname="item_code"]').click();
     await this.selectLink(row.locator(input('item_code')), item.code, item.label);
     // ERPNext fills the item price asynchronously after selecting the link.
     await this.page.waitForFunction(({ code, rate }) => globalThis.cur_frm?.doc?.items?.some(
@@ -70,7 +77,7 @@ export class SalesOrderPage {
   }
 
   async setQuantity(quantity, row = this.rows.first()) {
-    await row.locator('.data-row [data-fieldname="qty"]').click();
+    await row.locator('.data-row > .grid-static-col[data-fieldname="qty"]').click();
     const control = row.locator(input('qty'));
     await control.fill(String(quantity));
     await control.press('Tab');

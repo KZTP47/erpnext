@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:
@@ -30,7 +30,7 @@ jobs:
       - name: Fixture and harness unit tests
         run: npm run test:unit
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --only-shell chromium
       - name: Prepare disposable ERPNext site
         id: stack
         timeout-minutes: 9
@@ -38,6 +38,7 @@ jobs:
       - name: ERPNext domain unit tests
         run: npm run test:domain
       - name: REST contracts
+        if: ${{ !cancelled() && steps.stack.outcome == 'success' }}
         run: npm run test:api
       - name: Desk workflows
         if: ${{ !cancelled() && steps.stack.outcome == 'success' }}

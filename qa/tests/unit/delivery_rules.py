@@ -11,6 +11,10 @@ class RejectedDelivery(Exception):
     pass
 
 
+def reject_delivery(message, **_):
+    raise RejectedDelivery(message)
+
+
 def order(today, delivery, line_dates, *, order_type='Sales', skip=0):
     rows = [SimpleNamespace(delivery_date=date) for date in line_dates]
     doc = SimpleNamespace(
@@ -26,8 +30,8 @@ class DeliveryRules(unittest.TestCase):
     def setUp(self):
         module = 'erpnext.selling.doctype.sales_order.sales_order'
         self.enterContext(patch(f'{module}._', side_effect=lambda text: text))
-        self.enterContext(patch(f'{module}.frappe.throw', side_effect=RejectedDelivery))
-        self.enterContext(patch(f'{module}.frappe.msgprint', side_effect=RejectedDelivery))
+        self.enterContext(patch(f'{module}.frappe.throw', side_effect=reject_delivery))
+        self.enterContext(patch(f'{module}.frappe.msgprint', side_effect=reject_delivery))
 
     def test_header_follows_latest_line_date(self):
         doc, _ = order('2030-03-01', None, ['2030-03-08', '2030-03-12'])

@@ -12,7 +12,7 @@ test('UI-01 golden: creates a priced order draft in Desk', async ({ page, erp, s
   await order.signIn();
   await order.startNew();
   await order.selectCustomer();
-  await order.changeField('delivery_date', delivery);
+  await order.setDeliveryDate(delivery);
   await order.addItem(synthetic.items[line.sku], line.qty);
   await order.setReference(reference);
   await order.save();
@@ -43,6 +43,7 @@ test('UI-02 negative: zero quantity is rejected, and the corrected draft is save
   expect(unchanged.grand_total).toBe(initial.totalCents / 100);
 
   await validation.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect(validation).toBeHidden();
   await order.setQuantity(fixed.lines[0].qty);
   await order.save();
   await expect(order.action('Submit')).toBeVisible();
