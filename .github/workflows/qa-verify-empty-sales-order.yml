@@ -42,6 +42,7 @@ jobs:
             "${compose[@]}" cp "$RUNNER_TEMP/$file" "backend:$app_dir/$module/$file"
           done
           "${compose[@]}" restart backend
+          "${compose[@]}" restart frontend
           curl --fail --silent --show-error --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 http://127.0.0.1:18080/api/method/ping
       - name: Confirm patched document validation
         run: |
