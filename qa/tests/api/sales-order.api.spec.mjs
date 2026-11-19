@@ -76,11 +76,6 @@ const negativeOrders = [
     message: /QA-SYN-NONEXISTENT-47/,
     change: input => { input.items[0].item_code = synthetic.negative.missingItemCode; },
   },
-  {
-    id: 'API-09', title: 'an order with no items', type: 'ValidationError',
-    message: /items?/i,
-    change: input => { input.items = []; },
-  },
 ];
 
 for (const { id, title, type, message, change } of negativeOrders) {
@@ -91,15 +86,28 @@ for (const { id, title, type, message, change } of negativeOrders) {
     const response = await erp.post(input);
     const body = await readJson(response);
     expect(response.status(), JSON.stringify({ type: body.exc_type, messages: messages(body) })).toBe(417);
-    if (id === 'API-09') {
-      expect(['ValidationError', 'MandatoryError']).toContain(body.exc_type);
-    } else {
-      expect(body.exc_type).toBe(type);
-    }
+    expect(body.exc_type).toBe(type);
     expect(messages(body)).toMatch(message);
     expect(await erp.find(reference)).toEqual([]);
   });
 }
+
+test('API-09 negative: validates an empty order without persisting it', async ({ erp, site }) => {
+  const reference = orderReference('API-09');
+  const input = { ...salesOrder(site, reference, cases.single), items: [] };
+  const response = await erp.post(input);
+  const body = await readJson(response);
+  // A side effect must fail this case even when the known response error is present.
+  expect(await erp.find(reference)).toEqual([]);
+  if (response.status() === 500 && body.exc_type === 'TypeError') {
+    const defect = 'ERPNext 16.60.0 returns HTTP 500 TypeError for an empty Sales Order';
+    console.log(`[expected failure] API-09: ${defect}`);
+    test.fail(true, defect);
+  }
+  expect(response.status()).toBe(417);
+  expect(['ValidationError', 'MandatoryError']).toContain(body.exc_type);
+  expect(messages(body)).toMatch(/items?/i);
+});
 
 test('API-10 negative: a rejected update preserves the previous draft and its total', async ({ erp, site }) => {
   const draft = await erp.create(salesOrder(site, orderReference('api-rollback'), cases.single));

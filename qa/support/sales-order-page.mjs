@@ -32,7 +32,9 @@ export class SalesOrderPage {
 
   async selectLink(control, value, optionText) {
     await control.fill(value);
-    await this.page.getByRole('option').filter({ hasText: optionText }).click();
+    const option = this.page.getByRole('listbox').getByRole('option').filter({ hasText: optionText });
+    await expect(option).toBeVisible();
+    await option.click();
   }
 
   async changeField(field, value) {
@@ -56,6 +58,7 @@ export class SalesOrderPage {
   async setReference(reference) {
     await this.page.getByRole('tab', { name: 'More Info', exact: true }).click();
     const section = this.page.locator('[data-fieldname="additional_info_section"]');
+    await expect(section).toBeVisible();
     const control = section.locator(input('po_no'));
     if (!await control.isVisible()) await section.locator('.section-head').click();
     await this.changeField('po_no', reference);
@@ -67,13 +70,21 @@ export class SalesOrderPage {
     }
     await expect(this.rows).toHaveCount(1);
     const row = this.rows.first();
-    await row.locator('.data-row > .grid-static-col[data-fieldname="item_code"]').click();
-    await this.selectLink(row.locator(input('item_code')), item.code, item.label);
-    // ERPNext fills the item price asynchronously after selecting the link.
-    await this.page.waitForFunction(({ code, rate }) => globalThis.cur_frm?.doc?.items?.some(
-      line => line.item_code === code && Number(line.rate) === rate,
-    ), { code: item.code, rate: item.rateCents / 100 });
-    await this.setQuantity(quantity, row);
+    await row.locator('.btn-open-row').click();
+    const editor = row.locator('.form-in-grid:visible');
+    await this.selectLink(editor.locator(input('item_code')), item.code, item.label);
+    // The browser applies link selection and price-list results asynchronously.
+    await expect.poll(() => this.page.evaluate(() => globalThis.cur_frm?.doc?.items?.[0]?.item_code), {
+      message: 'The item selected in the row editor should be the order line item',
+    }).toBe(item.code);
+    const qty = editor.locator(input('qty'));
+    await qty.fill(String(quantity));
+    await qty.press('Tab');
+    await expect.poll(() => this.page.evaluate(() => globalThis.cur_frm?.doc?.items?.[0]?.rate), {
+      message: 'The row should show the selected item price from Standard Selling',
+    }).toBe(item.rateCents / 100);
+    await editor.locator('.grid-collapse-row').click();
+    await expect(editor).toBeHidden();
   }
 
   async setQuantity(quantity, row = this.rows.first()) {

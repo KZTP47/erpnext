@@ -49,8 +49,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: browser-failure-screenshots
-          path: qa/test-results/**/*.png
+          name: test-failure-context
+          path: |
+            qa/test-results/**/*.png
+            qa/test-results/**/error-context.md
           if-no-files-found: ignore
       - name: Remove this run's site and volumes
         if: always()

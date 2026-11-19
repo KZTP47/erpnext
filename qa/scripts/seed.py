@@ -110,6 +110,9 @@ def main():
         frappe.db.set_single_value('System Settings', 'date_format', 'yyyy-mm-dd')
         frappe.db.set_single_value('System Settings', 'enable_onboarding', 0)
         ensure_catalog()
+        selling_settings = frappe.get_single('Selling Settings')
+        selling_settings.selling_price_list = 'Standard Selling'
+        selling_settings.save()
         actor = prepare_operator()
         frappe.db.commit()
         print('QA_SITE=' + json.dumps({
