@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: erpnext-qa-${{ github.ref }}
+  group: erpnext-sales-order-qa-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -33,6 +33,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Prepare disposable ERPNext site
         id: stack
+        timeout-minutes: 9
         run: npm run stack:up
       - name: ERPNext domain unit tests
         run: npm run test:domain

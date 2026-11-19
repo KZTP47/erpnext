@@ -1,6 +1,6 @@
 # Testautomation för försäljningsorder i ERPNext
 
-En kund beställer en tjänst. Säljaren väljer artikel och leveransdatum, sparar ett utkast och skickar sedan in ordern i ERPNext. Sviten följer den ordern från beräkning och validering till sparat dokument i databasen.
+En kund beställer en tjänst. Säljaren väljer artikel och leveransdatum, sparar ett utkast och skickar sedan in ordern i ERPNext. Sviten täcker orderflödet från beräkning och validering till sparat dokument i databasen.
 
 | Nivå | Vad som körs | Varför den ligger här |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ En kund beställer en tjänst. Säljaren väljer artikel och leveransdatum, spar
 | API | [Försäljningsorder via Frappe REST](tests/api/sales-order.api.spec.mjs) | Kontrollerar pris, orderrader, datum, ändring, inskick, valideringsfel och sparat tillstånd genom samma HTTP-gränssnitt som en integration använder. |
 | E2E | [Försäljningsorder i Desk med Chromium](tests/e2e/sales-order.e2e.spec.mjs) | Verifierar att en säljare kan skapa ett utkast, rätta ett fel och skicka in en order i gränssnittet. Varje test läser tillbaka ordern via REST. |
 
-Sviten utgår från **ERPNext v16.60.0** (`886ab6ae187244e7f1b852393384ab6019d56264`). Den använder ERPNexts publicerade container för samma version. En användare med rollen `Sales Manager` kör API- och webbläsartesterna mot den tillfälliga sajten.
+Sviten utgår från **ERPNext v16.60.0** (`886ab6ae187244e7f1b852393384ab6019d56264`). Den körs mot ERPNexts publicerade container för samma version. För att bedöma egna ändringar i ERPNexts produktkod behöver du bygga en image från den koden. Ett testkonto med rollerna `Sales User` och `Sales Manager` kör API- och webbläsartesterna mot den tillfälliga sajten.
 
 ## Kör sviten
 
@@ -27,7 +27,7 @@ npm run test:e2e
 
 På en Linux-maskin som saknar Chromium-bibliotek kör du `npx playwright install --with-deps chromium`. Första starten kan ta flera minuter eftersom ERPNext, MariaDB och Redis hämtas och en tom sajt skapas. Standardsajten nås på `http://127.0.0.1:18080`. Om porten är upptagen, sätt `ERP_QA_PORT` till en ledig port före `stack:up` och använd samma värde vid körning.
 
-Testerna får skriva order i den tillfälliga sajten. Varje fall får en egen inköpsorderreferens, så en tidigare körning kan ligga kvar för felsökning. Kör `npm run stack:down` när du är klar. Kommandot tar bort teststacken och dess Docker-volymer.
+Testerna får skriva order i den tillfälliga sajten. Varje fall får en egen inköpsorderreferens, så en tidigare körning kan ligga kvar för felsökning. Kör `npm run stack:down` när du är klar. Kommandot tar bort teststacken och dess Docker-volymer. Om du ändrar katalogen i `fixtures/sales.json`, kör `stack:down` före nästa `stack:up` så att priser och övriga grunddata läses in på nytt.
 
 ## När ett test faller
 

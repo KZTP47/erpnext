@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from secrets import token_hex
 
+import erpnext
 import frappe
 from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 from frappe.utils import nowdate
@@ -79,9 +80,13 @@ def prepare_operator():
             'user_type': 'System User',
             'language': 'en',
             'send_welcome_email': 0,
-            'roles': [{'role': 'Sales Manager'}],
+            'roles': [{'role': 'Sales User'}, {'role': 'Sales Manager'}],
         }).insert()
     user = frappe.get_doc('User', OPERATOR)
+    assigned_roles = {row.role for row in user.roles}
+    for role in ('Sales User', 'Sales Manager'):
+        if role not in assigned_roles:
+            user.append('roles', {'role': role})
     user.api_key = user.api_key or token_hex(8)[:15]
     secret = token_hex(8)[:15]
     user.api_secret = secret
@@ -92,12 +97,15 @@ def prepare_operator():
 
 
 def main():
+    if erpnext.__version__ != '16.60.0':
+        raise RuntimeError(f'Expected ERPNext 16.60.0, found {erpnext.__version__}')
     frappe.init(site='frontend', sites_path=f'{BENCH}/sites')
     frappe.connect()
     try:
         frappe.set_user('Administrator')
         ensure_company()
         frappe.db.set_single_value('System Settings', 'date_format', 'yyyy-mm-dd')
+        frappe.db.set_single_value('System Settings', 'enable_onboarding', 0)
         ensure_catalog()
         actor = prepare_operator()
         frappe.db.commit()
@@ -106,6 +114,7 @@ def main():
             'company': FIXTURES['company']['name'],
             'customer': FIXTURES['customer']['name'],
             'today': nowdate(),
+            'erpnextVersion': erpnext.__version__,
         }))
     finally:
         frappe.destroy()

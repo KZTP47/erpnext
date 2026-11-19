@@ -13,10 +13,10 @@ test('UI-01 golden: creates a priced order draft in Desk', async ({ page, erp, s
   await order.startNew();
   await order.selectCustomer();
   await order.changeField('delivery_date', delivery);
-  await order.changeField('po_no', reference);
   await order.addItem(synthetic.items[line.sku], line.qty);
+  await order.setReference(reference);
   await order.save();
-  await expect(order.primary('Submit')).toBeVisible();
+  await expect(order.action('Submit')).toBeVisible();
 
   const found = await erp.find(reference);
   expect(found).toHaveLength(1);
@@ -45,7 +45,7 @@ test('UI-02 negative: zero quantity is rejected, and the corrected draft is save
   await validation.getByRole('button', { name: 'Close', exact: true }).click();
   await order.setQuantity(fixed.lines[0].qty);
   await order.save();
-  await expect(order.primary('Submit')).toBeVisible();
+  await expect(order.action('Submit')).toBeVisible();
   const corrected = await erp.read(draft.name);
   expect(corrected).toMatchObject({ docstatus: 0, grand_total: fixed.totalCents / 100 });
   expect(corrected.items[0].qty).toBe(fixed.lines[0].qty);
@@ -59,7 +59,7 @@ test('UI-03 golden: submits an existing order and reloads it as a submitted orde
   await order.submit();
   await expect.poll(async () => (await erp.read(draft.name)).docstatus).toBe(1);
   await page.reload();
-  await expect(order.primary('Cancel')).toBeVisible();
+  await expect(order.action('Cancel')).toBeVisible();
   const saved = await erp.read(draft.name);
   expect(saved).toMatchObject({ docstatus: 1, grand_total: cases.mixed.totalCents / 100 });
   expect(saved.items.map(item => item.qty)).toEqual(cases.mixed.lines.map(line => line.qty));

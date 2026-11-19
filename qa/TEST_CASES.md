@@ -22,8 +22,8 @@ Ett korrekt orderutkast ska behålla kund, artiklar, leveransdatum och pris efte
 
 ## Syntetiska data
 
-[Testdatafilen](fixtures/sales.json) skrevs av Codex för det här arbetsprovet. Jag utgick från en påhittad tjänstesäljare och två enkla tjänster med olika priser. Kundnamn och artikelkoder har QA-prefix. Katalogen innehåller inga privata adresser, kontaktuppgifter eller importerade kundposter. Testkontot använder den reserverade domänen `example.invalid`.
+[Codex skapade testdatafilen](fixtures/sales.json) för en påhittad säljare med två tjänster till olika priser. Kundnamn och artikelkoder har QA-prefix. Katalogen innehåller inga privata adresser, kontaktuppgifter eller importerade kundposter. Testkontot använder den reserverade domänen `example.invalid`.
 
-Exempel: två kalibreringar à 124,75 USD och tre kartläggningar à 36,80 USD ska ge 359,90 USD. Det förväntade beloppet finns i testdatafilen. Enhetstesterna verifierar beräkningen i heltalscent, medan API- och webbläsartesterna jämför mot ERPNexts sparade belopp. Det går att upprepa samma körning utan en aktiv AI-modell. Slumpdelen i orderreferensen används för att skilja körningar åt.
+Två kalibreringar à 124,75 USD och tre kartläggningar à 36,80 USD ska ge 359,90 USD. Det förväntade beloppet finns i testdatafilen. Enhetstesterna verifierar beräkningen i heltalscent, medan API- och webbläsartesterna jämför mot ERPNexts sparade belopp. Det går att upprepa samma körning utan en aktiv AI-modell. Slumpdelen i orderreferensen används för att skilja körningar åt.
 
 Testdata är avsiktligt begränsad till det som behövs för orderflödet. Betalningar, fakturor, skatter, lagersaldo och kostnadsföring ingår inte i arbetsprovet.

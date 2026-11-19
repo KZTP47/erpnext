@@ -30,6 +30,8 @@
 
 100% Open-Source ERP system to help you run your business.
 
+[QA work sample for Sales Orders](qa/README.md) covers ERPNext's delivery rules, the REST API and the Desk workflow with synthetic data. The linked guide and test cases are in Swedish.
+
 ### Motivation
 
 Running a business is a complex task - handling invoices, tracking stock, managing personnel and even more ad-hoc activities. In a market where software is sold separately to manage each of these tasks, ERPNext does all of the above and more, for free.

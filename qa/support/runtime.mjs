@@ -15,7 +15,8 @@ export function readSite() {
     throw new Error('Prepare the disposable site first with npm run stack:up', { cause });
   }
   if (site.baseURL !== localBaseURL() || site.company !== 'QA Synthetic Aster Relay Cooperative' ||
-      site.username !== 'qa-sales-operator@example.invalid' || !site.apiKey || !site.apiSecret) {
+      site.username !== 'qa-sales-operator@example.invalid' || site.erpnextVersion !== '16.60.0' ||
+      !site.apiKey || !site.apiSecret) {
     throw new Error('The runtime file does not describe this disposable QA site');
   }
   return site;

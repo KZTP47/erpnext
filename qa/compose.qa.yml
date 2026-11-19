@@ -1,11 +1,26 @@
 # Applied after the pinned upstream disposable stack.
+x-erpnext-image: &erpnext-image frappe/erpnext:v16.60.0@sha256:0018b773d70c8d50581484cfb5360bc40b535b0b8d9acbb72162dda401d17b43
 services:
   backend:
+    image: *erpnext-image
     volumes:
       - type: bind
         source: .
         target: /qa
         read_only: true
   frontend:
+    image: *erpnext-image
     ports: !override
       - "127.0.0.1:${ERP_QA_PORT:-18080}:8080"
+  configurator:
+    image: *erpnext-image
+  create-site:
+    image: *erpnext-image
+  queue-long:
+    image: *erpnext-image
+  queue-short:
+    image: *erpnext-image
+  scheduler:
+    image: *erpnext-image
+  websocket:
+    image: *erpnext-image
