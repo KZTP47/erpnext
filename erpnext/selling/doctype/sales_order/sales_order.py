@@ -279,6 +279,9 @@ class SalesOrder(SellingController):
 		return result
 
 	def before_validate(self):
+		if not self.get("items"):
+			frappe.throw(_("Please add at least one item."), frappe.MandatoryError)
+
 		self.set_has_unit_price_items()
 		self.flags.allow_zero_qty = self.has_unit_price_items
 

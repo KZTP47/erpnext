@@ -42,6 +42,13 @@ from erpnext.tests.utils import ERPNextTestSuite
 
 
 class TestSalesOrder(ERPNextTestSuite):
+	def test_rejects_an_order_without_items(self):
+		order = make_sales_order(do_not_save=True)
+		order.set("items", [])
+
+		with self.assertRaisesRegex(frappe.MandatoryError, "Please add at least one item"):
+			order.insert()
+
 	def test_maximum_discount_for_percentage_amount_and_rate(self):
 		item = make_item(properties={"is_stock_item": 0, "max_discount": 10})
 		item_price = frappe.get_doc(
