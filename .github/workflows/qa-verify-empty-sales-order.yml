@@ -1,0 +1,63 @@
+name: Verify empty sales order fix
+
+on:
+  push:
+    branches: [qa/verify-sales-order-required-items]
+
+permissions:
+  contents: read
+
+env:
+  FIX_COMMIT: abcd84eb0a4087e477182195682bcb2a57729fc5
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: qa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: qa/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --only-shell chromium
+      - name: Start ERPNext v16.60.0
+        run: npm run stack:up
+      - name: Confirm original server error
+        run: |
+          docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T backend ./env/bin/python /qa/scripts/check-empty-order.py baseline
+      - name: Apply the exact candidate to the disposable backend
+        run: |
+          git fetch --depth=1 origin "$FIX_COMMIT"
+          app_dir=/home/frappe/frappe-bench/apps/erpnext
+          module=erpnext/selling/doctype/sales_order
+          compose=(docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml)
+          for file in sales_order.py test_sales_order.py; do
+            git show "$FIX_COMMIT:$module/$file" > "$RUNNER_TEMP/$file"
+            "${compose[@]}" cp "$RUNNER_TEMP/$file" "backend:$app_dir/$module/$file"
+          done
+          "${compose[@]}" restart backend
+          curl --fail --silent --show-error --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 http://127.0.0.1:18080/api/method/ping
+      - name: Confirm patched document validation
+        run: |
+          docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T backend ./env/bin/python /qa/scripts/check-empty-order.py patched
+      - name: REST regression suite
+        run: npm run test:api
+        env:
+          ERP_QA_STRICT_EMPTY_ORDER: '1'
+      - name: Desk regression suite
+        run: npm run test:e2e
+      - name: ERPNext test case
+        run: |
+          docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T -e CI=true backend bench --site frontend run-tests --doctype 'Sales Order' --test test_rejects_an_order_without_items
+      - name: Site logs on failure
+        if: failure()
+        run: npm run stack:logs
+      - name: Remove the disposable site
+        if: always()
+        run: npm run stack:down
