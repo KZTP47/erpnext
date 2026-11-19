@@ -48,14 +48,23 @@ jobs:
         run: |
           docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T backend ./env/bin/python /qa/scripts/check-empty-order.py patched
       - name: REST regression suite
+        id: api
         run: npm run test:api
         env:
           ERP_QA_STRICT_EMPTY_ORDER: '1'
       - name: Desk regression suite
         run: npm run test:e2e
       - name: ERPNext test case
+        if: ${{ !cancelled() && steps.api.outcome == 'success' }}
         run: |
           docker compose -p erpnext-qa-work-sample --project-directory . -f .stack/pwd.yml -f compose.qa.yml exec -T -e CI=true backend bench --site frontend run-tests --doctype 'Sales Order' --test test_rejects_an_order_without_items
+      - name: Upload browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desk-failures
+          path: qa/test-results/
+          if-no-files-found: ignore
       - name: Site logs on failure
         if: failure()
         run: npm run stack:logs

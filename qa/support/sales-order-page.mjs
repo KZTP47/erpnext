@@ -46,6 +46,7 @@ export class SalesOrderPage {
   async selectCustomer() {
     await this.selectLink(this.page.locator(input('customer')), this.site.customer, this.site.customer);
     await expect(this.page.locator(input('customer'))).toHaveValue(this.site.customer);
+    await this.page.evaluate(() => new Promise(resolve => globalThis.frappe.after_ajax(resolve)));
   }
 
   async setDeliveryDate(isoDate, scope = this.page) {
@@ -88,11 +89,14 @@ export class SalesOrderPage {
     await expect(editor).toBeHidden();
   }
 
-  async setQuantity(quantity, row = this.rows.first()) {
-    await row.locator('.data-row > .grid-static-col[data-fieldname="qty"]').click();
-    const control = row.locator(input('qty'));
-    await control.fill(String(quantity));
-    await control.press('Tab');
+  async setQuantity(quantity) {
+    const row = this.rows.first();
+    await row.locator('.btn-open-row').click();
+    const editor = row.locator('.form-in-grid:visible');
+    await this.changeField('qty', String(quantity), editor);
+    await expect.poll(() => this.page.evaluate(() => globalThis.cur_frm?.doc?.items?.[0]?.qty)).toBe(quantity);
+    await editor.locator('.grid-collapse-row').click();
+    await expect(editor).toBeHidden();
   }
 
   async save() {
