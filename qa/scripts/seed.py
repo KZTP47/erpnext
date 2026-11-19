@@ -98,8 +98,8 @@ def prepare_operator():
 
 
 def main():
-    if erpnext.__version__ != '16.60.0':
-        raise RuntimeError(f'Expected ERPNext 16.60.0, found {erpnext.__version__}')
+    if erpnext.__version__ != '17.0.0-dev':
+        raise RuntimeError(f'Expected ERPNext 17.0.0-dev, found {erpnext.__version__}')
     # Match Bench's working directory so Frappe resolves ../logs correctly.
     os.chdir(f'{BENCH}/sites')
     frappe.init(site='frontend')

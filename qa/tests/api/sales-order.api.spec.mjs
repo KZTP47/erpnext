@@ -100,7 +100,7 @@ test('API-09 negative: validates an empty order without persisting it', async ({
   // A side effect must fail this case even when the known response error is present.
   expect(await erp.find(reference)).toEqual([]);
   if (response.status() === 500 && body.exc_type === 'TypeError' && !process.env.ERP_QA_STRICT_EMPTY_ORDER) {
-    const defect = 'ERPNext 16.60.0 returns HTTP 500 TypeError for an empty Sales Order';
+    const defect = 'ERPNext 17.0.0-dev returns HTTP 500 TypeError for an empty Sales Order';
     console.log(`[expected failure] API-09: ${defect}`);
     test.fail(true, defect);
   }
