@@ -37,8 +37,8 @@ export class SalesOrderPage {
     await option.click();
   }
 
-  async changeField(field, value) {
-    const control = this.page.locator(input(field));
+  async changeField(field, value, scope = this.page) {
+    const control = scope.locator(input(field));
     await control.fill(value);
     await control.press('Tab');
   }
@@ -48,11 +48,11 @@ export class SalesOrderPage {
     await expect(this.page.locator(input('customer'))).toHaveValue(this.site.customer);
   }
 
-  async setDeliveryDate(isoDate) {
+  async setDeliveryDate(isoDate, scope = this.page) {
     const displayedDate = await this.page.evaluate(
       value => globalThis.frappe.datetime.str_to_user(value, false, true), isoDate,
     );
-    await this.changeField('delivery_date', displayedDate);
+    await this.changeField('delivery_date', displayedDate, scope);
   }
 
   async setReference(reference) {
@@ -64,7 +64,7 @@ export class SalesOrderPage {
     await this.changeField('po_no', reference);
   }
 
-  async addItem(item, quantity) {
+  async addItem(item, quantity, deliveryDate) {
     if (await this.rows.count() === 0) {
       await this.grid.getByRole('button', { name: 'Add row', exact: true }).click();
     }
@@ -83,6 +83,7 @@ export class SalesOrderPage {
     await expect.poll(() => this.page.evaluate(() => globalThis.cur_frm?.doc?.items?.[0]?.rate), {
       message: 'The row should show the selected item price from Standard Selling',
     }).toBe(item.rateCents / 100);
+    await this.setDeliveryDate(deliveryDate, editor);
     await editor.locator('.grid-collapse-row').click();
     await expect(editor).toBeHidden();
   }

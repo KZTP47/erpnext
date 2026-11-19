@@ -12,8 +12,8 @@ test('UI-01 golden: creates a priced order draft in Desk', async ({ page, erp, s
   await order.signIn();
   await order.startNew();
   await order.selectCustomer();
+  await order.addItem(synthetic.items[line.sku], line.qty, delivery);
   await order.setDeliveryDate(delivery);
-  await order.addItem(synthetic.items[line.sku], line.qty);
   await order.setReference(reference);
   await order.save();
   await expect(order.action('Submit')).toBeVisible();
@@ -24,7 +24,7 @@ test('UI-01 golden: creates a priced order draft in Desk', async ({ page, erp, s
   expect(persisted).toMatchObject({ customer: site.customer, docstatus: 0,
     delivery_date: delivery, grand_total: cases.single.totalCents / 100 });
   expect(persisted.items).toHaveLength(1);
-  expect(persisted.items[0]).toMatchObject({ item_code: synthetic.items[line.sku].code, qty: line.qty });
+  expect(persisted.items[0]).toMatchObject({ item_code: synthetic.items[line.sku].code, qty: line.qty, delivery_date: delivery });
 });
 
 test('UI-02 negative: zero quantity is rejected, and the corrected draft is saved', async ({ page, erp, site }) => {

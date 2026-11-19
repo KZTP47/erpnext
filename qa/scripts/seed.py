@@ -113,6 +113,10 @@ def main():
         selling_settings = frappe.get_single('Selling Settings')
         selling_settings.selling_price_list = 'Standard Selling'
         selling_settings.save()
+        # The fixture totals describe tax-free orders in this synthetic company.
+        frappe.db.set_value('Sales Taxes and Charges Template', {
+            'company': FIXTURES['company']['name'], 'is_default': 1,
+        }, 'is_default', 0)
         actor = prepare_operator()
         frappe.db.commit()
         print('QA_SITE=' + json.dumps({

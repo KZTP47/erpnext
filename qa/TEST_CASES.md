@@ -26,7 +26,7 @@ Ett korrekt orderutkast ska behålla kund, artiklar, leveransdatum och pris efte
 
 Två kalibreringar à 124,75 USD och tre kartläggningar à 36,80 USD ska ge 359,90 USD. Det förväntade beloppet finns i testdatafilen. Enhetstesterna verifierar beräkningen i heltalscent, medan API- och webbläsartesterna jämför mot ERPNexts sparade belopp. Det går att upprepa samma körning utan en aktiv AI-modell. Slumpdelen i orderreferensen används för att skilja körningar åt.
 
-Testdata är avsiktligt begränsad till det som behövs för orderflödet. Betalningar, fakturor, skatter, lagersaldo och kostnadsföring ingår inte i arbetsprovet.
+Testdata är avsiktligt begränsad till det som behövs för orderflödet. Den syntetiska testkunden använder order utan skatt. Betalningar, fakturor, skatteberäkning, lagersaldo och kostnadsföring ingår inte i arbetsprovet.
 
 ## Känd avvikelse i ERPNext 16.60.0
 
